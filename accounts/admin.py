@@ -1,6 +1,6 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.html import format_html
+from django.urls import reverse, path
 from .models import User, Subscription
 
 
@@ -26,18 +26,25 @@ class UserAdmin(admin.ModelAdmin):
 
     def give_access_btn(self, obj):
         if not obj.is_active_subscriber:
-            return format_html(
-                '<a class="button" href="/admin/accounts/user/{}/give-access/" '
-                'style="background:#7C3AED;color:white;padding:4px 10px;border-radius:4px;text-decoration:none;">'
-                '✅ Give Access</a>', obj.pk
-            )
-        return format_html('<span style="color:green;font-weight:bold;">✔ Active</span>')
+            # Use reverse for dynamic and safe URL generation
+            try:
+                url = reverse('admin:accounts_user_give_access', args=[obj.pk])
+                return format_html(
+                    '<a class="button" href="{}" '
+                    'style="background:#7C3AED;color:white;padding:4px 10px;border-radius:4px;text-decoration:none;">'
+                    '✅ Give Access</a>', url
+                )
+            except Exception:
+                return format_html('<span style="color:orange;">URL Error</span>')
+        
+        return format_html('<span style="color:{};font-weight:bold;">{}</span>', 'green', '✔ Active')
     give_access_btn.short_description = 'Access Control'
 
     def get_urls(self):
-        from django.urls import path
         urls = super().get_urls()
-        custom = [path('<int:pk>/give-access/', self.admin_site.admin_view(self.give_access), name='give-access')]
+        custom = [
+            path('<int:pk>/give-access/', self.admin_site.admin_view(self.give_access), name='accounts_user_give_access')
+        ]
         return custom + urls
 
     def give_access(self, request, pk):
@@ -47,7 +54,7 @@ class UserAdmin(admin.ModelAdmin):
         user.is_active_subscriber = True
         user.save()
         messages.success(request, f"✅ Access granted to {user.email}")
-        return HttpResponseRedirect('/admin/accounts/user/')
+        return HttpResponseRedirect(reverse('admin:accounts_user_changelist'))
 
 
 @admin.register(Subscription)

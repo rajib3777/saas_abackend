@@ -6,7 +6,7 @@ __pycache__/
 .DS_Store
 *.sqlite3
 *.log
-staticfiles/
+# staticfiles/
 media/
 .env
 data_export.json

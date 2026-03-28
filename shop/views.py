@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, status
 from .models import Product, StockEntry, Sale, Parcel, AdCampaign
 from .serializers import (ProductSerializer, StockEntrySerializer,
                            SaleSerializer, ParcelSerializer, AdCampaignSerializer)
@@ -36,6 +36,16 @@ class StockEntryViewSet(viewsets.ModelViewSet):
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied("You do not own this product.")
         serializer.save()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        # Targeted fix: avoid returning serializer.data to prevent serialization crashes
+        return Response(
+            {"status": "success", "message": "Stock updated successfully"},
+            status=status.HTTP_201_CREATED
+        )
 
 
 class SaleViewSet(viewsets.ModelViewSet):

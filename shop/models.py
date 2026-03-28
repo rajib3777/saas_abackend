@@ -26,9 +26,8 @@ class StockEntry(models.Model):
     def save(self, *args, **kwargs):
         with transaction.atomic():
             super().save(*args, **kwargs)
-            # Use F expression to avoid race conditions and ensure numeric update
-            self.product.stock = F('stock') + self.quantity
-            self.product.save(update_fields=['stock'])
+            # Direct QuerySet update is the most robust and atomic way in serverless
+            Product.objects.filter(pk=self.product_id).update(stock=F('stock') + self.quantity)
 
 
 class Sale(models.Model):

@@ -29,6 +29,14 @@ class StockEntryViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return StockEntry.objects.filter(product__owner=self.request.user)
 
+    def perform_create(self, serializer):
+        # Additional check to ensure the product belongs to the user
+        product = serializer.validated_data.get('product')
+        if product.owner != self.request.user:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("You do not own this product.")
+        serializer.save()
+
 
 class SaleViewSet(viewsets.ModelViewSet):
     serializer_class = SaleSerializer

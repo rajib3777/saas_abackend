@@ -5,7 +5,7 @@ from .models import User, Subscription
 
 
 @admin.register(User)
-class UserAdmin(BaseUserAdmin):
+class UserAdmin(admin.ModelAdmin):
     list_display = ['email', 'full_name', 'subscription_type', 'is_active_subscriber', 'date_joined', 'give_access_btn']
     list_filter = ['subscription_type', 'is_active_subscriber', 'is_staff']
     search_fields = ['email', 'full_name', 'business_name']

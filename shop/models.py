@@ -1,4 +1,5 @@
-from django.db import models
+from django.db import models, transaction
+from django.db.models import F
 from django.utils import timezone
 from accounts.models import User
 
@@ -23,9 +24,11 @@ class StockEntry(models.Model):
     note = models.CharField(max_length=200, blank=True)
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        self.product.stock += self.quantity
-        self.product.save()
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+            # Use F expression to avoid race conditions and ensure numeric update
+            self.product.stock = F('stock') + self.quantity
+            self.product.save(update_fields=['stock'])
 
 
 class Sale(models.Model):

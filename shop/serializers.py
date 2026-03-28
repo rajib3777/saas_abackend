@@ -10,6 +10,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class StockEntrySerializer(serializers.ModelSerializer):
+    note = serializers.CharField(required=False, allow_blank=True)
+
     class Meta:
         model = StockEntry
         fields = ['id', 'product', 'quantity', 'date', 'note']

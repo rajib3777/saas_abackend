@@ -40,10 +40,37 @@ class DashboardView(APIView):
             clients = Client.objects.filter(owner=user)
             total_income = clients.aggregate(t=Sum('paid_amount'))['t'] or 0
             total_due = sum(c.due_amount for c in clients)
+
+            # 12-Month Chart Data for Office
+            from office.models import ClientPayment
+            import calendar
+            chart_labels = []
+            chart_income = []
+            for i in range(-11, 1):
+                target_month = month + i
+                target_year = year
+                while target_month < 1:
+                    target_month += 12
+                    target_year -= 1
+                
+                payments = ClientPayment.objects.filter(
+                    client__owner=user, 
+                    date__year=target_year, 
+                    date__month=target_month
+                )
+                m_income = payments.aggregate(s=Sum('amount'))['s'] or 0
+                
+                chart_labels.append(f"{calendar.month_abbr[target_month]} {target_year}")
+                chart_income.append(float(m_income))
+
             data['office'] = {
                 'total_clients': clients.count(),
                 'total_income': float(total_income),
                 'total_due': float(total_due),
+                'chart': {
+                    'labels': chart_labels,
+                    'income': chart_income,
+                }
             }
 
         elif user.subscription_type == 'shop':

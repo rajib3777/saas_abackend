@@ -1,4 +1,6 @@
 from rest_framework import viewsets, permissions
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from .models import Client, ClientPayment
 from .serializers import ClientSerializer, ClientPaymentSerializer
 
@@ -19,6 +21,19 @@ class ClientViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    @action(detail=True, methods=['post'], url_path='mark-as-paid')
+    def mark_as_paid(self, request, pk=None):
+        client = self.get_object()
+        due = client.due_amount
+        if due > 0:
+            ClientPayment.objects.create(
+                client=client,
+                amount=due,
+                note="Full payment marked as paid from dashboard"
+            )
+        serializer = self.get_serializer(client)
+        return Response(serializer.data)
 
 
 class ClientPaymentViewSet(viewsets.ModelViewSet):

@@ -63,6 +63,15 @@ class SaleViewSet(viewsets.ModelViewSet):
             qs = qs.filter(date__year=year)
         return qs
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(
+            {"status": "success", "message": "Sale recorded successfully"},
+            status=status.HTTP_201_CREATED
+        )
+
 
 class ParcelViewSet(viewsets.ModelViewSet):
     serializer_class = ParcelSerializer
@@ -70,13 +79,22 @@ class ParcelViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = Parcel.objects.filter(owner=self.request.user)
-        status = self.request.query_params.get('status')
-        if status:
-            qs = qs.filter(status=status)
+        status_param = self.request.query_params.get('status')
+        if status_param:
+            qs = qs.filter(status=status_param)
         return qs
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(
+            {"status": "success", "message": "Parcel recorded successfully"},
+            status=status.HTTP_201_CREATED
+        )
 
 
 class AdCampaignViewSet(viewsets.ModelViewSet):
@@ -88,3 +106,12 @@ class AdCampaignViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(
+            {"status": "success", "message": "Ad campaign recorded successfully"},
+            status=status.HTTP_201_CREATED
+        )

@@ -22,12 +22,18 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('office', 'Office'),
         ('shop', 'Shop'),
     ]
+    ROLE_CHOICES = [
+        ('admin', 'Admin'),
+        ('moderator', 'Moderator'),
+    ]
 
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=150)
     phone = models.CharField(max_length=20, blank=True)
     business_name = models.CharField(max_length=200, blank=True)
     subscription_type = models.CharField(max_length=10, choices=SUBSCRIPTION_TYPES, default='office')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='admin')
+    parent_admin = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='moderators')
     is_active_subscriber = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

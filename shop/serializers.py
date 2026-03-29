@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, StockEntry, Sale, Parcel, AdCampaign
+from .models import Product, StockEntry, Sale, Parcel, AdCampaign, CourierWithdrawal
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -31,16 +31,23 @@ class SaleSerializer(serializers.ModelSerializer):
 
 class ParcelSerializer(serializers.ModelSerializer):
     profit = serializers.ReadOnlyField()
+    added_by_name = serializers.CharField(source='added_by.full_name', read_only=True)
 
     class Meta:
         model = Parcel
         fields = ['id', 'courier_name', 'tracking_number', 'customer_name',
-                  'cost_price', 'selling_price', 'profit', 'status', 'date']
-        read_only_fields = ['date', 'profit']
+                  'cost_price', 'selling_price', 'profit', 'status', 'date', 'added_by', 'added_by_name']
+        read_only_fields = ['date', 'profit', 'added_by_name']
 
 
 class AdCampaignSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdCampaign
         fields = ['id', 'name', 'platform', 'start_date', 'end_date', 'total_spend', 'revenue', 'created_at']
+        read_only_fields = ['created_at']
+
+class CourierWithdrawalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourierWithdrawal
+        fields = ['id', 'courier_name', 'amount', 'date', 'created_at']
         read_only_fields = ['created_at']

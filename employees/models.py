@@ -4,6 +4,7 @@ from accounts.models import User
 
 class Employee(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='employees')
+    user_account = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='employee_profile')
     name = models.CharField(max_length=150)
     phone = models.CharField(max_length=20, blank=True)
     position = models.CharField(max_length=100, blank=True)
@@ -21,6 +22,8 @@ class AttendanceRecord(models.Model):
     entry_time = models.TimeField(null=True, blank=True)
     exit_time = models.TimeField(null=True, blank=True)
     working_hours = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    location = models.CharField(max_length=255, blank=True)
+    message = models.TextField(blank=True)
 
     class Meta:
         unique_together = ('employee', 'date')

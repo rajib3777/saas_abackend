@@ -22,7 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'full_name', 'phone', 'business_name', 'subscription_type',
-                  'is_active_subscriber', 'date_joined']
+                  'is_active_subscriber', 'date_joined', 'role', 'parent_admin']
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):

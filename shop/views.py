@@ -21,10 +21,14 @@ class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [IsActiveShopUser]
 
     def get_queryset(self):
-        return Product.objects.filter(owner=self.request.user)
+        user = self.request.user
+        owner = user.parent_admin if getattr(user, 'role', 'admin') == 'moderator' else user
+        return Product.objects.filter(owner=owner)
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        user = self.request.user
+        owner = user.parent_admin if getattr(user, 'role', 'admin') == 'moderator' else user
+        serializer.save(owner=owner)
 
 
 class StockEntryViewSet(viewsets.ModelViewSet):
@@ -32,12 +36,16 @@ class StockEntryViewSet(viewsets.ModelViewSet):
     permission_classes = [IsActiveShopUser]
 
     def get_queryset(self):
-        return StockEntry.objects.filter(product__owner=self.request.user)
+        user = self.request.user
+        owner = user.parent_admin if getattr(user, 'role', 'admin') == 'moderator' else user
+        return StockEntry.objects.filter(product__owner=owner)
 
     def perform_create(self, serializer):
+        user = self.request.user
+        owner = user.parent_admin if getattr(user, 'role', 'admin') == 'moderator' else user
         # Additional check to ensure the product belongs to the user
         product = serializer.validated_data.get('product')
-        if product.owner != self.request.user:
+        if product.owner != owner:
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied("You do not own this product.")
         serializer.save()
@@ -58,7 +66,9 @@ class SaleViewSet(viewsets.ModelViewSet):
     permission_classes = [IsActiveShopUser]
 
     def get_queryset(self):
-        qs = Sale.objects.filter(product__owner=self.request.user)
+        user = self.request.user
+        owner = user.parent_admin if getattr(user, 'role', 'admin') == 'moderator' else user
+        qs = Sale.objects.filter(product__owner=owner)
         month = self.request.query_params.get('month')
         year = self.request.query_params.get('year')
         if month:
@@ -122,10 +132,14 @@ class AdCampaignViewSet(viewsets.ModelViewSet):
     permission_classes = [IsActiveShopUser]
 
     def get_queryset(self):
-        return AdCampaign.objects.filter(owner=self.request.user)
+        user = self.request.user
+        owner = user.parent_admin if getattr(user, 'role', 'admin') == 'moderator' else user
+        return AdCampaign.objects.filter(owner=owner)
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        user = self.request.user
+        owner = user.parent_admin if getattr(user, 'role', 'admin') == 'moderator' else user
+        serializer.save(owner=owner)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

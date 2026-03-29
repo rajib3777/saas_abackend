@@ -1,5 +1,11 @@
 from rest_framework import serializers
-from .models import Employee, AttendanceRecord
+from .models import Employee, AttendanceRecord, WorkSetting
+
+
+class WorkSettingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkSetting
+        fields = ['id', 'entry_cutoff_time', 'off_days']
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
@@ -23,5 +29,5 @@ class AttendanceRecordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AttendanceRecord
-        fields = ['id', 'employee', 'employee_name', 'date', 'entry_time', 'exit_time', 'working_hours', 'location', 'message']
-        read_only_fields = ['working_hours']
+        fields = ['id', 'employee', 'employee_name', 'date', 'entry_time', 'exit_time', 'working_hours', 'location', 'is_late', 'message']
+        read_only_fields = ['working_hours', 'is_late']

@@ -94,14 +94,13 @@ class AttendanceViewSet(viewsets.ModelViewSet):
             from rest_framework.exceptions import ValidationError
             raise ValidationError("Employee profile not found or not specified.")
 
-        # Calculate is_late
+        # Calculate is_late based on admin's settings
         owner = employee.owner
-        settings = WorkSetting.objects.filter(owner=owner).first()
+        settings, _ = WorkSetting.objects.get_or_create(owner=owner)
         is_late = False
-        if settings and serializer.validated_data.get('entry_time'):
-            e_time = serializer.validated_data.get('entry_time')
-            if e_time > settings.entry_cutoff_time:
-                is_late = True
+        e_time = serializer.validated_data.get('entry_time')
+        if e_time and e_time > settings.entry_cutoff_time:
+            is_late = True
         
         serializer.save(employee=employee, is_late=is_late)
 

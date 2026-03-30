@@ -19,10 +19,17 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    employee_id = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ['id', 'email', 'full_name', 'phone', 'business_name', 'subscription_type',
-                  'is_active_subscriber', 'date_joined', 'role', 'parent_admin']
+                  'is_active_subscriber', 'date_joined', 'role', 'parent_admin', 'employee_id']
+
+    def get_employee_id(self, obj):
+        if hasattr(obj, 'employee_profile'):
+            return obj.employee_profile.id
+        return None
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):

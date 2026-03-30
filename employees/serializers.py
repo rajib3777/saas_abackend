@@ -16,8 +16,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = ['id', 'name', 'phone', 'position', 'monthly_salary', 'join_date', 'is_active', 'is_moderator', 'email', 'password', 'has_account']
-        read_only_fields = ['join_date', 'has_account']
+        fields = ['id', 'name', 'phone', 'position', 'monthly_salary', 'join_date', 'is_active', 'is_moderator', 'email', 'password', 'has_account', 'user_account_id']
+        read_only_fields = ['join_date', 'has_account', 'user_account_id']
 
     def get_has_account(self, obj):
         return obj.user_account is not None

@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ProductViewSet, StockEntryViewSet, SaleViewSet, ParcelViewSet, AdCampaignViewSet, CourierWithdrawalViewSet
+from .views import ProductViewSet, StockEntryViewSet, SaleViewSet, ParcelViewSet, AdCampaignViewSet, CourierWithdrawalViewSet, CronTrackView
 
 router = DefaultRouter()
 router.register('products', ProductViewSet, basename='product')
@@ -10,4 +10,7 @@ router.register('parcels', ParcelViewSet, basename='parcel')
 router.register('ads', AdCampaignViewSet, basename='ad')
 router.register('courier-withdrawals', CourierWithdrawalViewSet, basename='courier-withdrawal')
 
-urlpatterns = [path('', include(router.urls))]
+urlpatterns = [
+    path('', include(router.urls)),
+    path('parcels/cron-track/', CronTrackView.as_view(), name='cron-track'),
+]

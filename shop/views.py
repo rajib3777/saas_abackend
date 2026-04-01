@@ -1,5 +1,9 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from django.conf import settings
 from .models import Product, StockEntry, Sale, Parcel, AdCampaign, CourierWithdrawal
 from .serializers import (ProductSerializer, StockEntrySerializer,
                            SaleSerializer, ParcelSerializer, AdCampaignSerializer, CourierWithdrawalSerializer)
@@ -197,3 +201,26 @@ class CourierWithdrawalViewSet(viewsets.ModelViewSet):
             {"status": "success", "message": "Courier withdrawal recorded successfully"},
             status=status.HTTP_201_CREATED
         )
+
+
+class CronTrackView(APIView):
+    """
+    Serverless Cron endpoint for Vercel.
+    Vercel calls this URL every 1 minute automatically via vercel.json crons config.
+    Protected by CRON_SECRET header to prevent unauthorized access.
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        # Security check: validate Authorization header
+        cron_secret = getattr(settings, 'CRON_SECRET', '')
+        auth_header = request.headers.get('Authorization', '')
+        expected = f'Bearer {cron_secret}'
+
+        if cron_secret and auth_header != expected:
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Run the tracking logic synchronously
+        from .tasks import track_due_parcels
+        result = track_due_parcels()
+        return Response({'status': 'ok', 'result': result})

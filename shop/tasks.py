@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta
 from django.utils import timezone
-from celery import shared_task
+from django.utils import timezone
 import requests
 from bs4 import BeautifulSoup
 from .models import Parcel
@@ -52,7 +52,6 @@ def scrape_steadfast_status(tracking_number):
         return None, str(e)
 
 
-@shared_task
 def track_due_parcels():
     now = timezone.now()
     due_parcels = Parcel.objects.filter(

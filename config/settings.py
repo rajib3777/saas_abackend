@@ -7,6 +7,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-saas-platform-secret-key-change-in-production')
 
+CRON_SECRET = config('CRON_SECRET', default='saas-cron-secret-change-in-prod')
+
 DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
@@ -157,24 +159,7 @@ JAZZMIN_UI_CONFIG = {
     "sidebar_disable_expand": False,
     "sidebar_nav_child_indent": False,
     "sidebar_nav_compact_style": False,
-    "sidebar_hover_elevate": False,
+    "sidebar_activate_nav_legacy_style": False,
     "sidebar_link_nav_small_text": False,
     "accent_colour": "accent-primary",
 }
-
-# CELERY & REDIS CONFIGURATION
-CELERY_BROKER_URL = config('REDIS_URL', default='redis://localhost:6379/1')
-CELERY_RESULT_BACKEND = config('REDIS_URL', default='redis://localhost:6379/1')
-
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = TIME_ZONE
-
-CELERY_BEAT_SCHEDULE = {
-    'track-due-parcels-every-1-minute': {
-        'task': 'shop.tasks.track_due_parcels',
-        'schedule': 60.0,
-    },
-}
-

@@ -48,8 +48,11 @@ class Sale(models.Model):
 class Parcel(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
+        ('in_transit', 'In Transit'),
+        ('out_for_delivery', 'Out for Delivery'),
         ('delivered', 'Delivered'),
         ('returned', 'Returned'),
+        ('cancelled', 'Cancelled'),
     ]
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='parcels')
     courier_name = models.CharField(max_length=100)
@@ -60,6 +63,13 @@ class Parcel(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='processed_parcels')
     date = models.DateField(default=timezone.now)
+    
+    # Auto-tracking fields
+    is_auto_tracking = models.BooleanField(default=False)
+    next_check = models.DateTimeField(null=True, blank=True)
+    last_sync_time = models.DateTimeField(null=True, blank=True)
+    last_sync_status = models.CharField(max_length=255, null=True, blank=True)
+
 
     @property
     def profit(self):

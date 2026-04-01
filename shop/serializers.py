@@ -36,8 +36,9 @@ class ParcelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Parcel
         fields = ['id', 'courier_name', 'tracking_number', 'customer_name',
-                  'cost_price', 'selling_price', 'profit', 'status', 'date', 'added_by', 'added_by_name']
-        read_only_fields = ['date', 'profit', 'added_by_name']
+                  'cost_price', 'selling_price', 'profit', 'status', 'date', 'added_by', 'added_by_name',
+                  'is_auto_tracking', 'next_check', 'last_sync_time', 'last_sync_status']
+        read_only_fields = ['date', 'profit', 'added_by_name', 'next_check', 'last_sync_time', 'last_sync_status']
 
 
 class AdCampaignSerializer(serializers.ModelSerializer):

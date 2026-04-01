@@ -112,10 +112,28 @@ class ParcelViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         user = self.request.user
-        if getattr(user, 'role', 'admin') == 'moderator':
-            serializer.save(owner=user.parent_admin, added_by=user)
-        else:
-            serializer.save(owner=user, added_by=user)
+        added_by = user
+        owner = user.parent_admin if getattr(user, 'role', 'admin') == 'moderator' else user
+        
+        # Initiate tracking if it is Steadfast
+        courier_name = serializer.validated_data.get('courier_name', '').lower()
+        tracking_number = serializer.validated_data.get('tracking_number', '')
+        
+        is_auto_tracking = False
+        next_check = None
+        
+        if 'steadfast' in courier_name and tracking_number:
+            is_auto_tracking = True
+            from django.utils import timezone
+            from datetime import timedelta
+            next_check = timezone.now() + timedelta(minutes=10)
+            
+        serializer.save(
+            owner=owner, 
+            added_by=added_by,
+            is_auto_tracking=is_auto_tracking,
+            next_check=next_check
+        )
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
